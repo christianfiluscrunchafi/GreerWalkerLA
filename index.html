@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GreerWalker · Lease Renewal · Crunchafi</title>
+<style>
+  :root{
+    --purple:#6B006B;--pd:#4A004A;--pl:#d9a0d9;--pbg:#f9f0f9;
+    --teal:#032f3c;--tm:#0a5068;--tl:#e0f0f5;
+    --salmon:#ffb18a;--sl:#fff0e8;
+    --cream:#f7f3f2;
+    --green:#1a6b1a;--red:#A32D2D;--redl:#fdf0f0;
+    --border:#e0e0e0;--gray:#666;--dgray:#222;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--cream);color:var(--dgray);min-height:100vh}
+
+  /* HEADER */
+  .hdr{background:var(--teal);padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:3px}
+  .lb{display:inline-block;width:18px;height:18px;border-top:3px solid var(--salmon);border-left:3px solid var(--salmon);border-radius:3px 0 0 0;vertical-align:middle}
+  .rb2{display:inline-block;width:18px;height:18px;border-bottom:3px solid var(--salmon);border-right:3px solid var(--salmon);border-radius:0 0 3px 0;vertical-align:middle}
+  .lt{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.5px;margin:0 3px;vertical-align:middle}
+  .hr-right{font-size:11px;color:rgba(255,255,255,.6)}
+  .divider{height:3px;background:linear-gradient(to right,var(--teal),var(--purple),var(--salmon))}
+
+  /* TABS */
+  .tab-bar{background:#fff;border-bottom:2px solid var(--border);padding:0 40px;display:flex}
+  .tab{padding:11px 20px;font-size:12px;font-weight:700;color:#999;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;letter-spacing:.04em;text-transform:uppercase;transition:color .15s}
+  .tab:hover{color:var(--teal)}
+  .tab.on{color:var(--teal);border-bottom-color:var(--teal)}
+
+  /* PAGES */
+  .pg{display:none;padding:28px 40px;max-width:1200px;margin:0 auto}
+  .pg.on{display:block}
+  .pt{font-size:20px;font-weight:700;color:var(--teal);margin-bottom:3px}
+  .ps{font-size:12px;color:var(--gray);margin-bottom:20px}
+  .sl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--purple);margin-bottom:11px}
+  .card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+
+  /* METRICS */
+  .mg{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px}
+  .mb{background:#fff;border:1px solid var(--border);border-radius:8px;padding:13px 15px;border-top:3px solid var(--purple)}
+  .mb-lbl{font-size:10px;font-weight:700;color:var(--purple);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+  .mb-val{font-size:26px;font-weight:700;color:var(--teal)}
+  .mb-sub{font-size:11px;color:var(--gray);margin-top:2px}
+
+  /* SPARK */
+  .spk{display:flex;align-items:flex-end;gap:5px;height:68px}
+  .sc{flex:1;display:flex;flex-direction:column;align-items:center}
+  .sp{border-radius:3px 3px 0 0;background:var(--purple);width:100%;margin-top:auto}
+  .sn{border-radius:0 0 3px 3px;background:var(--pl);width:100%}
+  .sz{height:2px;background:var(--border);width:100%}
+  .slbl{display:flex;gap:5px;margin-top:5px}
+  .slbl span{flex:1;text-align:center;font-size:9px;color:var(--gray)}
+
+  /* PROJ TABLE */
+  .ptbl{width:100%;border-collapse:collapse;font-size:12px}
+  .ptbl th{background:var(--teal);color:#fff;padding:7px 11px;text-align:left;font-weight:700;font-size:11px}
+  .ptbl th.r{text-align:right}
+  .ptbl td{padding:7px 11px;border-bottom:1px solid var(--border)}
+  .ptbl td.r{text-align:right}
+  .ptbl tr:nth-child(even) td{background:var(--cream)}
+
+  /* QUOTE CARDS — interactive */
+  .qg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
+  .qc{background:#fff;border:2px solid var(--border);border-radius:8px;padding:14px 16px;cursor:pointer;transition:border-color .18s,box-shadow .18s;position:relative}
+  .qc:hover{border-color:var(--tl);box-shadow:0 2px 12px rgba(3,47,60,.08)}
+  .qc.active{border-color:var(--teal);box-shadow:0 2px 16px rgba(3,47,60,.14)}
+  .qc.cur{background:var(--cream)}
+  .qn{font-weight:700;font-size:13px;color:var(--teal);margin-bottom:1px}
+  .qb{font-size:11px;color:var(--gray);margin-bottom:9px}
+  .qp{font-size:20px;font-weight:700;color:var(--teal);margin-bottom:4px}
+  .qp span{font-size:11px;color:var(--gray);font-weight:400}
+  .qr{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;line-height:1.4}
+  .qr:last-child{border-bottom:none}
+  .qrl{color:var(--gray)}
+  .qrv{font-weight:700;color:var(--dgray)}
+  .qrv.red{color:var(--red)}
+  .qrv.grn{color:var(--green)}
+  .change-order-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;font-size:11px;border-bottom:1px solid var(--border);line-height:1.4}
+  .change-order-lbl{color:var(--gray)}
+  .change-order-val{font-weight:700;color:#b85000}
+
+  /* QUOTE SCENARIO PANEL */
+  .q-panel{display:none;margin-top:14px}
+  .q-panel.on{display:block}
+  .q-panel-inner{background:var(--tl);border:1px solid #b2d8e8;border-radius:8px;padding:16px 20px}
+  .q-panel-title{font-size:12px;font-weight:700;color:var(--teal);margin-bottom:12px}
+  .q-scen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .q-scen{background:#fff;border-radius:6px;padding:12px 14px;border-left:3px solid var(--purple)}
+  .q-scen-lbl{font-size:10px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+  .q-scen-leases{font-size:18px;font-weight:700;color:var(--teal)}
+  .q-scen-sub{font-size:11px;color:var(--gray);margin-top:2px}
+  .q-scen-cost{font-size:13px;font-weight:700;margin-top:6px}
+  .q-scen-cost.red{color:var(--red)}
+  .q-scen-cost.grn{color:var(--green)}
+  .q-scen-cost.warn{color:#b85000}
+  .q-scen-ovg{font-size:10px;color:var(--red);margin-top:2px}
+
+  /* BENCH */
+  table.bt{width:100%;border-collapse:collapse;font-size:12px}
+  table.bt th{background:var(--teal);color:#fff;padding:8px 12px;text-align:left;font-weight:700;font-size:11px}
+  table.bt th.r{text-align:right}
+  table.bt td{padding:8px 12px;border-bottom:1px solid #f0f0f0;line-height:1.4}
+  table.bt td.r{text-align:right}
+  table.bt tr:nth-child(even) td{background:var(--cream)}
+  table.bt tr.gw td{background:var(--sl)!important;font-weight:700;color:var(--teal)}
+  .rb{height:6px;background:var(--pbg);border-radius:3px;margin-top:3px;min-width:60px}
+  .rf{height:6px;background:var(--purple);border-radius:3px}
+  .pctb{display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;background:var(--sl);color:#7a3a00;font-weight:700;margin-left:4px}
+
+  /* CALLOUT STRIP */
+  .cal{background:var(--teal);color:#fff;border-radius:8px;padding:14px 20px;display:flex;align-items:center;gap:0;margin-bottom:18px}
+  .cs{text-align:center;flex:1;padding:0 14px}
+  .csv{font-size:22px;font-weight:700;color:var(--salmon);line-height:1.2}
+  .csl{font-size:10px;color:rgba(255,255,255,.65);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+  .cd{width:1px;height:36px;background:rgba(255,255,255,.2)}
+
+  /* ROI */
+  .roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+  .sr{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .sr label{font-size:12px;color:var(--dgray);width:185px;flex-shrink:0}
+  input[type=range]{flex:1;accent-color:var(--purple)}
+  .sv{font-size:12px;font-weight:700;color:var(--teal);width:60px;text-align:right}
+  .pctrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+  .pctcard{background:var(--pbg);border-radius:6px;padding:8px 10px;text-align:center}
+  .pctcard-lbl{font-size:10px;font-weight:700;color:var(--purple);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+  .pctcard-val{font-size:18px;font-weight:700;color:var(--pd)}
+  .pctcard-sub{font-size:10px;color:var(--gray)}
+  .res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:14px}
+  .rc{background:#fff;border:1px solid var(--border);border-radius:8px;padding:13px 15px;border-top:3px solid var(--purple)}
+  .rcl{font-size:10px;font-weight:700;color:var(--purple);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+  .rcv{font-size:26px;font-weight:700;color:var(--teal)}
+  .rcs{font-size:11px;color:var(--gray);margin-top:2px}
+  .act-tbl{font-size:11px;width:100%;border-collapse:collapse}
+  .act-tbl th{background:var(--teal);color:#fff;padding:7px 10px;text-align:left;font-size:10px;font-weight:700}
+  .act-tbl th.r{text-align:right}
+  .act-tbl td{padding:7px 10px;border-bottom:1px solid #f0f0f0;line-height:1.4}
+  .act-tbl td.r{text-align:right}
+  .act-tbl tr:nth-child(even) td{background:var(--cream)}
+  .type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+  .tmc{background:var(--pbg);border-radius:6px;padding:10px 12px}
+  .tml{font-size:10px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .tmv{font-size:18px;font-weight:700;color:var(--pd)}
+  .tms{font-size:10px;color:var(--gray);margin-top:1px}
+
+  /* ROI BAR CHART */
+  .roi-bar-section{background:#fff;border:1px solid var(--border);border-radius:8px;padding:20px 22px;margin-bottom:16px}
+  .roi-bar-outer{display:flex;gap:20px;align-items:flex-end;height:200px}
+  .roi-bar-grp{flex:1;display:flex;flex-direction:column;align-items:center}
+  .roi-bar-grp-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);margin-bottom:10px;text-align:center}
+  .roi-bar-inner{display:flex;gap:10px;align-items:flex-end;height:160px;width:100%;justify-content:center}
+  .roi-bar-scen{display:flex;flex-direction:column;align-items:center;gap:0;flex:1}
+  .roi-bar-scen-lbl{font-size:10px;color:var(--gray);font-weight:700;margin-bottom:5px;text-align:center}
+  .roi-bar-pair{display:flex;gap:4px;align-items:flex-end;height:150px}
+  .bar-v{background:var(--purple);border-radius:3px 3px 0 0;width:22px}
+  .bar-c{background:var(--salmon);border-radius:3px 3px 0 0;width:22px}
+  .bar-c.has-ovg{background:linear-gradient(to top,var(--red) 0%,var(--salmon) 60%)}
+  .roi-bar-grp-name{font-size:11px;font-weight:700;color:var(--teal);margin-top:10px;text-align:center;line-height:1.4}
+  .roi-legend{display:flex;gap:22px;margin-top:14px}
+  .roi-leg{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray)}
+  .roi-leg-dot{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+
+  /* CLIENTS */
+  .dist-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+  .dc{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+  .dcv{font-size:22px;font-weight:700;color:var(--teal)}
+  .dcl{font-size:10px;color:var(--gray);margin-top:3px}
+  .grw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  .gc{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;border-left:3px solid var(--purple)}
+  .gcn{font-size:12px;font-weight:700;color:var(--teal);margin-bottom:4px}
+  .gcr{display:flex;justify-content:space-between;font-size:11px;color:var(--gray)}
+  .cc{border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:9px;background:#fff}
+  .cc.top{border-left:4px solid var(--salmon)}
+  .cc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .cc-name{font-size:13px;font-weight:700;color:var(--teal)}
+  .cc-meta{font-size:11px;color:var(--purple);font-weight:700}
+  .bdg{display:inline-block;font-size:9px;padding:1px 7px;border-radius:20px;font-weight:700}
+  .bg2{background:var(--sl);color:#7a3a00}
+  .bs2{background:#f0f0f0;color:#555}
+  .bb2{background:#fde8d8;color:#7a3a00}
+  .cc-bars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .cc-bi{font-size:10px;color:var(--gray);line-height:1.5}
+  .cc-bt{height:5px;background:var(--pbg);border-radius:3px;margin:3px 0 0}
+  .cc-bf{height:5px;background:var(--purple);border-radius:3px}
+  /* Time savings in client cards */
+  .cc-time-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:11px;border-bottom:1px solid var(--border)}
+  .cc-time-hero{display:flex;align-items:baseline;gap:7px}
+  .cc-time-val{font-size:22px;font-weight:700;color:var(--teal)}
+  .cc-time-lbl{font-size:11px;color:var(--gray);line-height:1.4}
+  .cc-money-val{font-size:16px;font-weight:700;color:var(--purple)}
+  .cc-money-lbl{font-size:10px;color:var(--gray);margin-top:2px}
+  /* Complexity stacked bar */
+  .cc-complexity{margin-top:10px}
+  .cc-complexity-lbl{font-size:9px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+  .cc-complexity-bar{display:flex;height:9px;border-radius:4px;overflow:hidden;gap:1px}
+  .cc-cx-seg{height:100%}
+  .cc-complexity-legend{display:flex;gap:14px;margin-top:6px;flex-wrap:wrap}
+  .cc-cx-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--gray);line-height:1.4}
+  .cc-cx-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+  /* Clients ROI callout */
+  .clients-callout{background:var(--teal);color:#fff;border-radius:8px;padding:14px 20px;display:flex;align-items:center;gap:0}
+
+  /* PRESET BTNS */
+  .pbts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:15px}
+  .pbt{padding:5px 12px;font-size:11px;font-weight:700;border:1px solid var(--border);border-radius:5px;cursor:pointer;background:#fff;color:var(--dgray);transition:all .15s;font-family:Arial,Helvetica,sans-serif}
+  .pbt:hover,.pbt.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+  .warn{font-size:11px;color:var(--red);font-weight:700;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">
+    <span class="lb"></span><span class="lt">crunchafi</span><span class="rb2"></span>
+  </div>
+  <div class="hr-right">GreerWalker &nbsp;·&nbsp; Lease Renewal Analysis &nbsp;·&nbsp; Apr 2026</div>
+</div>
+<div class="divider"></div>
+
+<div class="tab-bar">
+  <div class="tab on" onclick="showTab(0)">Usage &amp; Quotes</div>
+  <div class="tab" onclick="showTab(1)">Benchmarking</div>
+  <div class="tab" onclick="showTab(2)">ROI &amp; Value</div>
+  <div class="tab" onclick="showTab(3)">Top Clients</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 1: USAGE & QUOTES                                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="pg on" id="pg0">
+  <div class="pt">Usage &amp; Quotes</div>
+  <div class="ps">GreerWalker &nbsp;·&nbsp; Rolling 12 months: May 2025 – Apr 2026 &nbsp;·&nbsp; Current lease count: <strong>1,044</strong></div>
+
+  <div class="mg">
+    <div class="mb"><div class="mb-lbl">Current Leases</div><div class="mb-val">1,044</div><div class="mb-sub">as of Apr 2026</div></div>
+    <div class="mb"><div class="mb-lbl">Net Change (12mo)</div><div class="mb-val">+127</div><div class="mb-sub">May 2025 – Apr 2026</div></div>
+    <div class="mb"><div class="mb-lbl">Avg Net Adds / Mo</div><div class="mb-val">+10.6</div><div class="mb-sub">Rolling 12-month avg</div></div>
+    <div class="mb"><div class="mb-lbl">Adj. Avg / Mo</div><div class="mb-val">+16.0</div><div class="mb-sub">Excl. highest &amp; lowest months</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:14px;margin-bottom:20px">
+    <div class="card">
+      <div class="sl">Monthly Net Lease Adds — May 2025 to Apr 2026</div>
+      <div style="font-size:10px;color:var(--purple);margin-bottom:7px">Purple = adds &nbsp;·&nbsp; Light = deletes</div>
+      <div class="spk" id="spk"></div>
+      <div class="slbl"><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:11px;color:var(--gray);margin-top:11px">
+        <div>Avg net/mo: <strong style="color:var(--teal)">+10.6</strong></div>
+        <div>Adj. avg: <strong style="color:var(--teal)">+16.0</strong></div>
+        <div>Peak add: <strong style="color:var(--teal)">+69</strong> (Nov)</div>
+        <div>Peak drop: <strong style="color:var(--red)">−102</strong> (Jul)</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sl">12-Month Lease Projections</div>
+      <div style="font-size:10px;color:var(--purple);margin-bottom:9px">High = avg excl. lowest month · Likely = rolling avg · Low = avg excl. highest month</div>
+      <table class="ptbl">
+        <tr><th>Scenario</th><th class="r">Avg / mo</th><th class="r">+12mo Adds</th><th class="r">Projected Total</th></tr>
+        <tr>
+          <td><strong style="color:var(--green)">📈 High</strong><br><span style="font-size:10px;color:var(--gray)">Excl. lowest month (−102)</span></td>
+          <td class="r">+20.8</td><td class="r">+250</td><td class="r"><strong>~1,294</strong></td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--teal)">📊 Likely</strong><br><span style="font-size:10px;color:var(--gray)">Rolling 12-month average</span></td>
+          <td class="r">+10.6</td><td class="r">+127</td><td class="r"><strong>~1,171</strong></td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--gray)">📉 Low</strong><br><span style="font-size:10px;color:var(--gray)">Excl. highest month (+69)</span></td>
+          <td class="r">+5.3</td><td class="r">+63</td><td class="r"><strong>~1,107</strong></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE QUOTE SECTION -->
+  <div class="sl">Renewal Quote Comparison — Click a quote to see projected costs by scenario</div>
+  <div class="qg" id="quote-grid">
+    <!-- Built by JS -->
+  </div>
+  <div id="quote-panels"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 2: BENCHMARKING                                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg1">
+  <div class="pt">Lease Volume Benchmarking</div>
+  <div class="ps">GreerWalker vs. 61 peer firms (anonymized) &nbsp;·&nbsp; Rolling 12 months: May 2025 – Apr 2026</div>
+  <div class="cal">
+    <div class="cs"><div class="csv">#4</div><div class="csl">Volume rank (1,044 leases)</div></div>
+    <div class="cd"></div>
+    <div class="cs"><div class="csv">94<span style="font-size:14px;font-weight:400">th</span></div><div class="csl">Percentile by volume</div></div>
+    <div class="cd"></div>
+    <div class="cs"><div class="csv">#9</div><div class="csl">Growth rank (+10.6/mo)</div></div>
+    <div class="cd"></div>
+    <div class="cs"><div class="csv">85<span style="font-size:14px;font-weight:400">th</span></div><div class="csl">Percentile by net adds</div></div>
+    <div class="cd"></div>
+    <div class="cs"><div class="csv">+127</div><div class="csl">Net new leases (12mo)</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div class="card">
+      <div class="sl">Rank by Lease Volume — Top 10 + GreerWalker</div>
+      <table class="bt" id="voltbl"></table>
+    </div>
+    <div class="card">
+      <div class="sl">Rank by Avg Net Adds / Mo — Top 10 + GreerWalker</div>
+      <table class="bt" id="addstbl"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 3: ROI & VALUE                                      -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg2">
+  <div class="pt">ROI &amp; Value</div>
+  <div class="ps">Time savings based on actual GreerWalker activity &nbsp;·&nbsp; 2,159 reports completed &nbsp;·&nbsp; 70 modifications processed</div>
+
+  <div class="roi-grid">
+    <div class="card">
+      <div class="sl">Billing Rate</div>
+      <div class="sr"><label>Avg. billing rate ($/hr)</label><input type="range" id="r-rate" min="50" max="500" step="5" value="200"><span class="sv" id="o-rate">$200</span></div>
+      <div class="sl" style="margin-top:11px">Lease Mix</div>
+      <div class="sr"><label>Micro (fax machine)</label><input type="range" id="r-mi" min="0" max="100" step="1" value="10"><span class="sv" id="o-mi">10%</span></div>
+      <div class="sr"><label>Simple (vehicle)</label><input type="range" id="r-si" min="0" max="100" step="1" value="55"><span class="sv" id="o-si">55%</span></div>
+      <div class="sr"><label>Advanced (office)</label><input type="range" id="r-ad" min="0" max="100" step="1" value="30"><span class="sv" id="o-ad">30%</span></div>
+      <div class="sr"><label>Complex (facility)</label><input type="range" id="r-co" min="0" max="100" step="1" value="5"><span class="sv" id="o-co">5%</span></div>
+      <div id="mixwarn"></div>
+      <div class="sl" style="margin-top:11px">Projected Lease Count</div>
+      <div class="pbts" id="proj-btns">
+        <span style="font-size:11px;color:var(--gray);line-height:28px;margin-right:2px;font-weight:700">Scenario:</span>
+        <button class="pbt on" onclick="setProj(1044,this)">Current (1,044)</button>
+        <button class="pbt" onclick="setProj(1107,this)">Low (~1,107)</button>
+        <button class="pbt" onclick="setProj(1171,this)">Likely (~1,171)</button>
+        <button class="pbt" onclick="setProj(1294,this)">High (~1,294)</button>
+      </div>
+      <div class="sr"><label>Lease count</label><input type="range" id="r-lc" min="900" max="1600" step="5" value="1044"><span class="sv" id="o-lc">1,044</span></div>
+    </div>
+    <div class="card">
+      <div class="sl">Lease Mix Breakdown</div>
+      <div class="pctrow" id="pctrow"></div>
+      <div class="sl">Actual Activity Volume (from data)</div>
+      <table class="act-tbl" id="acttbl">
+        <tr><th>Activity</th><th class="r">Count</th><th class="r">Hrs</th><th class="r">Micro</th><th class="r">Simple</th><th class="r">Advanced</th><th class="r">Complex</th></tr>
+      </table>
+      <div style="font-size:10px;color:var(--gray);margin-top:7px;font-style:italic">Counts scale with projected lease count. Based on actual completed reports &amp; modifications.</div>
+    </div>
+  </div>
+
+  <div class="sl">Estimated Unrealized Savings</div>
+  <div class="res-grid" id="resCards"></div>
+
+  <div class="sl">Projected Time Savings vs. Total Contract Cost</div>
+  <div class="roi-bar-section">
+    <div style="font-size:10px;color:var(--gray);margin-bottom:12px">Purple = annual time value &nbsp;·&nbsp; Salmon = base contract cost &nbsp;·&nbsp; Red gradient = portion attributable to overages &nbsp;·&nbsp; Each quote shown at High / Likely / Low lease scenario</div>
+    <div class="roi-bar-outer" id="roi-bars"></div>
+    <div class="roi-legend">
+      <div class="roi-leg"><div class="roi-leg-dot" style="background:var(--purple)"></div>Annual time value</div>
+      <div class="roi-leg"><div class="roi-leg-dot" style="background:var(--salmon)"></div>Base contract cost</div>
+      <div class="roi-leg"><div class="roi-leg-dot" style="background:var(--red)"></div>Overage cost</div>
+    </div>
+  </div>
+
+  <div class="type-grid" id="typeGrid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 4: TOP CLIENTS                                      -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="pg" id="pg3">
+  <div class="pt">Top Clients</div>
+  <div class="ps">Ranked by estimated time saved &nbsp;·&nbsp; Complexity mix and billing rate flow from ROI &amp; Value tab</div>
+  <div class="dist-grid">
+    <div class="dc"><div class="dcv">155</div><div class="dcl">Active clients</div></div>
+    <div class="dc"><div class="dcv">2,159</div><div class="dcl">Reports completed</div></div>
+    <div class="dc"><div class="dcv">70</div><div class="dcl">Modifications processed</div></div>
+    <div class="dc"><div class="dcv">1,313</div><div class="dcl">Amortizations run</div></div>
+    <div class="dc"><div class="dcv">404</div><div class="dcl">Journal entries produced</div></div>
+  </div>
+  <div id="clients-roi-callout" style="margin-bottom:18px"></div>
+  <div class="sl">Fastest Growing Clients (12mo, 5+ current leases)</div>
+  <div class="grw-grid">
+    <div class="gc"><div class="gcn">Trackhouse Holdings, LLC</div><div class="gcr"><span>+34 leases (12mo)</span><span style="font-weight:700;color:var(--teal)">34 total</span></div></div>
+    <div class="gc"><div class="gcn">NC Storage Parent, LLC</div><div class="gcr"><span>+17 leases (12mo)</span><span style="font-weight:700;color:var(--teal)">12 total</span></div></div>
+    <div class="gc"><div class="gcn">Aegeus Group, INc.</div><div class="gcr"><span>+16 leases (12mo)</span><span style="font-weight:700;color:var(--teal)">30 total</span></div></div>
+    <div class="gc"><div class="gcn">Everest USA Holdings Inc. and Subsidiaries</div><div class="gcr"><span>+15 leases (12mo)</span><span style="font-weight:700;color:var(--teal)">15 total</span></div></div>
+    <div class="gc"><div class="gcn">Spire Motorsports Holdings</div><div class="gcr"><span>+14 leases (12mo)</span><span style="font-weight:700;color:var(--teal)">83 total</span></div></div>
+    <div class="gc"><div class="gcn">Jagenberg US Holding, Inc. and Subsidiaries</div><div class="gcr"><span>+12 leases (12mo)</span><span style="font-weight:700;color:var(--teal)">14 total</span></div></div>
+  </div>
+  <div class="sl" id="clients-sort-label">Top 10 Clients by Estimated Time Saved</div>
+  <div style="font-size:10px;color:var(--gray);margin-bottom:12px;font-style:italic">Sorted by estimated hrs saved. Use billing rate and complexity mix on ROI &amp; Value tab to adjust — values update here automatically.</div>
+  <div id="clientlist"></div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────
+const GW_MONTHLY=[2,-5,-102,22,37,25,69,13,31,-56,35,56];
+const ACTUAL={amort:1313,fn:313,je:404,ld:129,mods:70};
+const BASE_LEASES=1044;
+const QUOTES=[
+  {id:'current',name:'Current Plan',price:73.19,bank:1000,ovg:90,isCurrent:true},
+  {id:'q1',     name:'Quote 1',    price:68,    bank:1200,ovg:88},
+  {id:'q2',     name:'Quote 2',    price:66.30, bank:1300,ovg:86},
+  {id:'q3',     name:'Quote 3',    price:64.60, bank:1500,ovg:74},
+];
+const SCENARIOS=[
+  {label:'High',  leases:1294,desc:'+250 leases over 12mo'},
+  {label:'Likely',leases:1171,desc:'+127 leases over 12mo'},
+  {label:'Low',   leases:1107,desc:'+63 leases over 12mo'},
+];
+// CORRECTED time benchmarks — modifications updated per client data
+const TIMES={
+  micro: {entry:8, je:7, amort:4, fn:9,  mod:0},
+  simple:{entry:33,je:25,amort:16,fn:82, mod:75},
+  adv:   {entry:70,je:59,amort:46,fn:255,mod:180},
+  comp:  {entry:225,je:78,amort:75,fn:570,mod:310}
+};
+// Anonymized firm data [vol, net12, avg_net, adj_avg, isGW?]
+const FIRMS=[
+  [305,75,6.2,5.6],[177,21,1.8,1.5],[301,7,0.6,0.3],[438,105,8.8,7.1],
+  [571,-46,-3.8,-0.3],[534,49,4.1,5.5],[296,-118,-9.8,-4.3],[367,43,3.6,2.4],
+  [425,174,14.5,12.0],[544,101,8.4,8.5],[623,254,21.2,1.0],[492,52,4.3,3.3],
+  [329,19,1.6,0.5],[532,0,0.0,1.4],[700,-28,-2.3,-1.4],[511,40,3.3,4.7],
+  [397,111,9.2,5.8],[134,-33,-2.8,-1.0],[258,-13,-1.1,0.6],[890,152,12.7,11.6],
+  [257,-43,-3.6,-0.2],[261,35,2.9,3.1],[1044,127,10.6,16.0,true],[212,-1,-0.1,1.4],
+  [419,-6,-0.5,0.0],[1138,85,7.1,8.8],[176,1,0.1,0.9],[299,-13,-1.1,-0.3],
+  [467,-10,-0.8,4.3],[636,73,6.1,5.2],[576,134,11.2,9.7],[240,-191,-15.9,-2.9],
+  [905,35,2.9,2.9],[126,126,10.5,7.7],[328,-12,-1.0,0.5],[246,30,2.5,2.8],
+  [451,87,7.2,7.0],[165,-3,-0.2,0.3],[965,193,16.1,14.9],[375,-17,-1.4,-0.4],
+  [296,3,0.2,-1.2],[395,70,5.8,3.5],[165,-29,-2.4,0.3],[2605,529,44.1,39.2],
+  [467,79,6.6,6.6],[1058,302,25.2,20.1],[73,-10,-0.8,-0.1],[308,19,1.6,1.6],
+  [257,19,1.6,1.0],[967,59,4.9,4.9],[476,108,9.0,7.7],[179,-1495,-124.6,35.6],
+  [65,-70,-5.8,-0.6],[484,201,16.8,14.2],[751,22,1.8,1.9],[225,23,1.9,1.6],
+  [397,32,2.7,1.8],[674,43,3.6,5.7],[989,-75,-6.2,1.1],[184,9,0.8,1.0],
+  [199,0,0.0,-0.3],[166,5,0.4,0.4],
+];
+const topClients=[
+  {name:'Duncan-Parnell, Inc.',leases:132,amort:128,fn:3,je:67,ld:7,mods:1,net12:2},
+  {name:'STAline Waterworks, Inc.',leases:5,amort:147,fn:15,je:4,ld:1,mods:0,net12:0},
+  {name:'Positec Tool Corporation',leases:17,amort:24,fn:5,je:79,ld:1,mods:0,net12:-1},
+  {name:'Aegeus Group, INc.',leases:30,amort:41,fn:17,je:14,ld:13,mods:22,net12:16},
+  {name:'Raydal Hospitality, LLC',leases:1,amort:44,fn:5,je:40,ld:4,mods:2,net12:0},
+  {name:'Pizza Partners Holdings LLC',leases:1,amort:62,fn:12,je:2,ld:3,mods:3,net12:0},
+  {name:'Concrete Supply Company, LLC',leases:62,amort:49,fn:5,je:16,ld:6,mods:0,net12:8},
+  {name:'Quintevents',leases:1,amort:56,fn:2,je:1,ld:7,mods:2,net12:0},
+  {name:'Paragon Site Solutions, LLC',leases:17,amort:53,fn:1,je:4,ld:1,mods:0,net12:-1},
+  {name:'Canyon Holdings, Inc.',leases:17,amort:38,fn:6,je:2,ld:3,mods:0,net12:0},
+];
+
+// ── SPARK ────────────────────────────────────────────────────
+(function(){
+  const el=document.getElementById('spk');
+  const pm=Math.max(...GW_MONTHLY.map(v=>Math.max(v,0)));
+  const nm=Math.max(...GW_MONTHLY.map(v=>Math.max(-v,0)));
+  GW_MONTHLY.forEach(v=>{
+    const c=document.createElement('div');c.className='sc';
+    if(v>0){const b=document.createElement('div');b.className='sp';b.style.height=Math.max(3,v/pm*60)+'px';c.appendChild(b);}
+    else if(v<0){const b=document.createElement('div');b.className='sn';b.style.height=Math.max(3,(-v)/nm*60)+'px';c.appendChild(b);}
+    else{const b=document.createElement('div');b.className='sz';c.appendChild(b);}
+    el.appendChild(c);
+  });
+})();
+
+// ── INTERACTIVE QUOTES ───────────────────────────────────────
+let activeQuote=null;
+function quoteCost(q,leases){
+  const base=q.price*q.bank;
+  const ovg=Math.max(0,leases-q.bank)*q.ovg;
+  return {base,ovg,total:base+ovg};
+}
+function costClass(ovg,leases,bank){
+  if(ovg>0)return 'red';
+  if(leases>bank*0.95)return 'warn';
+  return 'grn';
+}
+
+(function buildQuotes(){
+  const grid=document.getElementById('quote-grid');
+  const panels=document.getElementById('quote-panels');
+  QUOTES.forEach((q,qi)=>{
+    const base=q.price*q.bank;
+    const currentBase=QUOTES[0].price*QUOTES[0].bank;
+    const changeDelta=base-currentBase;
+    const card=document.createElement('div');
+    card.className='qc'+(q.isCurrent?' cur':'');
+    card.id='qcard-'+qi;
+    card.innerHTML=`
+      <div class="qn">${q.name}</div>
+      <div class="qb">${q.bank.toLocaleString()} lease bank</div>
+      <div class="qp">$${q.price.toFixed(2)} <span>/ lease / yr</span></div>
+      <div class="qr"><span class="qrl">Annual base cost</span><span class="qrv">$${Math.round(base).toLocaleString()}</span></div>
+      ${!q.isCurrent?`<div class="change-order-row"><span class="change-order-lbl">Change order vs. current</span><span class="change-order-val">+$${Math.round(changeDelta).toLocaleString()}/yr</span></div>`:''}
+      <div class="qr"><span class="qrl">Overage rate</span><span class="qrv">$${q.ovg} / lease</span></div>
+      <div class="qr" style="font-size:10px;color:var(--gray);border-bottom:none;padding-top:6px;font-style:italic">${qi===0?'Click to view projections':'Click to view projections →'}</div>`;
+    card.onclick=()=>toggleQuote(qi);
+    grid.appendChild(card);
+
+    // Panel
+    const panel=document.createElement('div');
+    panel.className='q-panel';
+    panel.id='qpanel-'+qi;
+    panel.innerHTML=`<div class="q-panel-inner">
+      <div class="q-panel-title">${q.name} — Projected Cost by Scenario (${q.bank.toLocaleString()} lease bank · $${q.ovg}/lease overage)</div>
+      <div class="q-scen-grid">${SCENARIOS.map(s=>{
+        const {base,ovg,total}=quoteCost(q,s.leases);
+        const cls=costClass(ovg,s.leases,q.bank);
+        return `<div class="q-scen">
+          <div class="q-scen-lbl">${s.label==='High'?'📈':s.label==='Likely'?'📊':'📉'} ${s.label}</div>
+          <div class="q-scen-leases">~${s.leases.toLocaleString()} leases</div>
+          <div class="q-scen-sub">${s.desc}</div>
+          <div class="q-scen-cost ${cls}">$${Math.round(total).toLocaleString()} total</div>
+          ${ovg>0?`<div class="q-scen-ovg">Incl. $${Math.round(ovg).toLocaleString()} overage (${s.leases-q.bank} leases × $${q.ovg})</div>`:'<div style="font-size:10px;color:var(--green);margin-top:2px">✓ Within lease bank</div>'}
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+    panels.appendChild(panel);
+  });
+})();
+
+function toggleQuote(qi){
+  const wasActive=(activeQuote===qi);
+  // Reset all
+  QUOTES.forEach((_,i)=>{
+    document.getElementById('qcard-'+i).classList.remove('active');
+    document.getElementById('qpanel-'+i).classList.remove('on');
+  });
+  if(!wasActive){
+    document.getElementById('qcard-'+qi).classList.add('active');
+    document.getElementById('qpanel-'+qi).classList.add('on');
+    activeQuote=qi;
+  } else {
+    activeQuote=null;
+  }
+}
+
+// ── BENCHMARKING ─────────────────────────────────────────────
+(function(){
+  function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+  const bv=[...FIRMS].sort((a,b)=>b[0]-a[0]);
+  const maxV=bv[0][0];
+  const gwVI=bv.findIndex(f=>f[4]);
+  const gwVR=gwVI+1,gwVP=Math.round((1-gwVR/FIRMS.length)*100);
+  const vt=document.getElementById('voltbl');
+  vt.innerHTML='<tr><th>#</th><th>Firm</th><th class="r">Leases</th><th>Relative</th></tr>';
+  const t10v=bv.slice(0,10);
+  const gwInV=t10v.some(f=>f[4]);
+  [...t10v,...(gwInV?[]:[bv[gwVI]])].forEach(f=>{
+    const rank=bv.findIndex(x=>x===f)+1;
+    const isGW=!!f[4];
+    const si=bv.indexOf(f);
+    const label=isGW?`<strong>GreerWalker</strong><span class="pctb">${ord(gwVP)} pctile</span>`:`Firm ${String.fromCharCode(65+si)}`;
+    const pct=Math.round(f[0]/maxV*100);
+    const tr=document.createElement('tr');if(isGW)tr.className='gw';
+    tr.innerHTML=`<td>${rank}</td><td>${label}</td><td class="r">${f[0].toLocaleString()}</td><td style="min-width:70px"><div class="rb"><div class="rf" style="width:${pct}%"></div></div></td>`;
+    vt.appendChild(tr);
+  });
+  const fa=FIRMS.filter(f=>f[1]>-500);
+  const ba=[...fa].sort((a,b)=>b[2]-a[2]);
+  const gwAI=ba.findIndex(f=>f[4]);
+  const gwAR=gwAI+1,gwAP=Math.round((1-gwAR/fa.length)*100);
+  const at=document.getElementById('addstbl');
+  at.innerHTML='<tr><th>#</th><th>Firm</th><th class="r">Avg/mo</th><th class="r">Adj</th><th class="r">Net 12mo</th></tr>';
+  const t10a=ba.slice(0,10);
+  const gwInA=t10a.some(f=>f[4]);
+  [...t10a,...(gwInA?[]:[ba[gwAI]])].forEach(f=>{
+    const rank=ba.findIndex(x=>x===f)+1;
+    const isGW=!!f[4];
+    const si=ba.indexOf(f);
+    const label=isGW?`<strong>GreerWalker</strong><span class="pctb">${ord(gwAP)} pctile</span>`:`Firm ${String.fromCharCode(65+si)}`;
+    const tr=document.createElement('tr');if(isGW)tr.className='gw';
+    tr.innerHTML=`<td>${rank}</td><td>${label}</td><td class="r">${(f[2]>0?'+':'')+f[2].toFixed(1)}</td><td class="r">${(f[3]>0?'+':'')+f[3].toFixed(1)}</td><td class="r">${f[1]>0?'+':''}${f[1]}</td>`;
+    at.appendChild(tr);
+  });
+})();
+
+// ── TOP CLIENTS HELPERS (must be before calcROI) ─────────────
+const CX_COLORS = {micro:'#d9a0d9', simple:'#6B006B', adv:'#032f3c', comp:'#ffb18a'};
+const CX_LABELS = {micro:'Micro', simple:'Simple', adv:'Advanced', comp:'Complex'};
+
+function clientTimeSaved(c, mix){
+  function avgMins(t){
+    return mix.micro*TIMES.micro[t]+mix.simple*TIMES.simple[t]+mix.adv*TIMES.adv[t]+mix.comp*TIMES.comp[t];
+  }
+  const totalMins = avgMins('amort')*c.amort + avgMins('fn')*c.fn + avgMins('je')*c.je + avgMins('entry')*c.ld + avgMins('mod')*c.mods;
+  return totalMins/60;
+}
+
+function clientComplexityHrs(c, mix){
+  const tiers = {};
+  ['micro','simple','adv','comp'].forEach(tier=>{
+    const pct = mix[tier];
+    const mins = (TIMES[tier].amort*c.amort + TIMES[tier].fn*c.fn + TIMES[tier].je*c.je + TIMES[tier].entry*c.ld + TIMES[tier].mod*c.mods)*pct;
+    tiers[tier] = mins/60;
+  });
+  return tiers;
+}
+
+// ── ROI ──────────────────────────────────────────────────────
+function setProj(val,btn){
+  document.getElementById('r-lc').value=val;
+  document.querySelectorAll('#proj-btns .pbt').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  calcROI();
+}
+
+function calcROI(){
+  const rate=+document.getElementById('r-rate').value;
+  const mi=+document.getElementById('r-mi').value/100;
+  const si=+document.getElementById('r-si').value/100;
+  const ad=+document.getElementById('r-ad').value/100;
+  const co=+document.getElementById('r-co').value/100;
+  const leases=+document.getElementById('r-lc').value;
+  const tot=mi+si+ad+co;
+  const ratio=leases/BASE_LEASES;
+
+  document.getElementById('o-rate').textContent='$'+rate;
+  document.getElementById('o-mi').textContent=Math.round(mi*100)+'%';
+  document.getElementById('o-si').textContent=Math.round(si*100)+'%';
+  document.getElementById('o-ad').textContent=Math.round(ad*100)+'%';
+  document.getElementById('o-co').textContent=Math.round(co*100)+'%';
+  document.getElementById('o-lc').textContent=leases.toLocaleString();
+  document.getElementById('mixwarn').innerHTML=Math.abs(tot-1)>0.01?`<div class="warn">Mix sums to ${Math.round(tot*100)}% — adjust to 100%</div>`:'';
+
+  const counts={amort:Math.round(ACTUAL.amort*ratio),fn:Math.round(ACTUAL.fn*ratio),je:Math.round(ACTUAL.je*ratio),ld:Math.round(ACTUAL.ld*ratio),mods:Math.round(ACTUAL.mods*ratio)};
+  const mix={micro:mi,simple:si,adv:ad,comp:co};
+  function mins(t,cnt){return(mix.micro*TIMES.micro[t]+mix.simple*TIMES.simple[t]+mix.adv*TIMES.adv[t]+mix.comp*TIMES.comp[t])*cnt;}
+
+  const mA=mins('amort',counts.amort),mF=mins('fn',counts.fn),mJ=mins('je',counts.je),mM=mins('mod',counts.mods),mL=mins('entry',counts.ld);
+  const totalMins=mA+mF+mJ+mM+mL;
+  const totalHrs=totalMins/60;
+  const totalVal=totalHrs*rate;
+
+  document.getElementById('pctrow').innerHTML=
+    [['Micro',mi],['Simple',si],['Advanced',ad],['Complex',co]].map(([l,v])=>
+      `<div class="pctcard"><div class="pctcard-lbl">${l}</div><div class="pctcard-val">${Math.round(v*100)}%</div><div class="pctcard-sub">${Math.round(leases*v).toLocaleString()} leases</div></div>`
+    ).join('');
+
+  const at=document.getElementById('acttbl');
+  at.innerHTML='<tr><th>Activity</th><th class="r">Count</th><th class="r">Hrs</th><th class="r">Micro</th><th class="r">Simple</th><th class="r">Advanced</th><th class="r">Complex</th></tr>';
+  [['Amortizations',counts.amort,'amort',mA],['Journal Entries',counts.je,'je',mJ],['Footnotes',counts.fn,'fn',mF],['Lease Data Reports',counts.ld,'entry',mL],['Modifications',counts.mods,'mod',mM]].forEach(([l,cnt,t,tm])=>{
+    const mm=Math.round(TIMES.micro[t]*cnt*mi),ms=Math.round(TIMES.simple[t]*cnt*si),ma=Math.round(TIMES.adv[t]*cnt*ad),mc=Math.round(TIMES.comp[t]*cnt*co);
+    at.innerHTML+=`<tr><td>${l}</td><td class="r"><strong>${cnt.toLocaleString()}</strong></td><td class="r"><strong>${Math.round(tm/60)}h</strong></td><td class="r">${mm}m</td><td class="r">${ms}m</td><td class="r">${ma}m</td><td class="r">${mc}m</td></tr>`;
+  });
+
+  const q2base=QUOTES[2].price*QUOTES[2].bank;
+  const q2ovg=Math.max(0,leases-QUOTES[2].bank)*QUOTES[2].ovg;
+  const q2total=q2base+q2ovg;
+
+  document.getElementById('resCards').innerHTML=`
+    <div class="rc"><div class="rcl">Total Time Saved</div><div class="rcv">${Math.round(totalHrs).toLocaleString()} hrs</div><div class="rcs">${Math.round(totalMins).toLocaleString()} minutes annually</div></div>
+    <div class="rc"><div class="rcl">Estimated Value</div><div class="rcv">$${Math.round(totalVal).toLocaleString()}</div><div class="rcs">at $${rate}/hr · ${leases.toLocaleString()} leases</div></div>
+    <div class="rc"><div class="rcl">Value per Lease</div><div class="rcv">$${Math.round(totalVal/leases).toLocaleString()}</div><div class="rcs">vs. Q2 cost $${Math.round(q2total/leases)}/lease${q2ovg>0?' (incl. overage)':''}</div></div>`;
+
+  // ROI BAR CHART
+  buildROIBars(totalVal, leases, rate);
+
+  document.getElementById('typeGrid').innerHTML=
+    [['Micro',mi,TIMES.micro],['Simple',si,TIMES.simple],['Advanced',ad,TIMES.adv],['Complex',co,TIMES.comp]].map(([l,pct,T])=>{
+      const h=((T.amort*counts.amort+T.fn*counts.fn+T.je*counts.je+T.mod*counts.mods+T.entry*counts.ld)*pct/60);
+      return `<div class="tmc"><div class="tml">${l} savings</div><div class="tmv">$${Math.round(h*rate).toLocaleString()}</div><div class="tms">${Math.round(h)}h &nbsp;·&nbsp; ${Math.round(pct*100)}% of mix</div></div>`;
+    }).join('');
+
+  // Keep Top Clients in sync
+  renderTopClients();
+}
+
+function buildROIBars(baseVal, baseLeasesNow, rate){
+  const el=document.getElementById('roi-bars');
+  el.innerHTML='';
+  // Compute all values to find max for scaling
+  const allH=[];
+  QUOTES.forEach(q=>{
+    SCENARIOS.forEach(s=>{
+      const sv=baseVal*(s.leases/baseLeasesNow);
+      const base=q.price*q.bank;
+      const ovg=Math.max(0,s.leases-q.bank)*q.ovg;
+      allH.push(sv,base+ovg);
+    });
+  });
+  const maxH=Math.max(...allH);
+  const BAR_H=150;
+
+  QUOTES.forEach(q=>{
+    const grp=document.createElement('div');
+    grp.className='roi-bar-grp';
+    const lbl=document.createElement('div');
+    lbl.className='roi-bar-grp-lbl';
+    lbl.textContent=q.name;
+    grp.appendChild(lbl);
+    const inner=document.createElement('div');
+    inner.className='roi-bar-inner';
+
+    SCENARIOS.forEach(s=>{
+      const sv=baseVal*(s.leases/baseLeasesNow);
+      const base=q.price*q.bank;
+      const ovg=Math.max(0,s.leases-q.bank)*q.ovg;
+      const totalCost=base+ovg;
+      const vH=Math.max(4,sv/maxH*BAR_H);
+      const cH=Math.max(4,totalCost/maxH*BAR_H);
+      const baseH=Math.max(4,base/maxH*BAR_H);
+      const ovgH=cH-baseH;
+
+      const scen=document.createElement('div');
+      scen.className='roi-bar-scen';
+      const sl2=document.createElement('div');
+      sl2.className='roi-bar-scen-lbl';
+      sl2.textContent=s.label;
+      const pair=document.createElement('div');
+      pair.className='roi-bar-pair';
+      pair.style.height=BAR_H+'px';
+
+      // Value bar
+      const vb=document.createElement('div');
+      vb.className='bar-v';
+      vb.style.height=vH+'px';
+      vb.title=`Time value: $${Math.round(sv).toLocaleString()}`;
+
+      // Cost bar — stacked: base (salmon) + ovg (red on top)
+      const cb=document.createElement('div');
+      cb.style.cssText=`width:22px;display:flex;flex-direction:column;justify-content:flex-end`;
+      if(ovg>0){
+        const ob=document.createElement('div');
+        ob.style.cssText=`width:22px;height:${ovgH}px;background:var(--red);border-radius:3px 3px 0 0;`;
+        ob.title=`Overage: $${Math.round(ovg).toLocaleString()}`;
+        const bb2=document.createElement('div');
+        bb2.style.cssText=`width:22px;height:${baseH}px;background:var(--salmon);`;
+        bb2.title=`Base: $${Math.round(base).toLocaleString()}`;
+        cb.appendChild(ob);cb.appendChild(bb2);
+      } else {
+        const bb2=document.createElement('div');
+        bb2.style.cssText=`width:22px;height:${cH}px;background:var(--salmon);border-radius:3px 3px 0 0;`;
+        bb2.title=`Base cost: $${Math.round(base).toLocaleString()}`;
+        cb.appendChild(bb2);
+      }
+
+      pair.appendChild(vb);pair.appendChild(cb);
+      scen.appendChild(sl2);scen.appendChild(pair);
+      inner.appendChild(scen);
+    });
+
+    grp.appendChild(inner);
+    const gname=document.createElement('div');
+    gname.className='roi-bar-grp-name';
+    gname.textContent='$'+Math.round(q.price*q.bank/1000)+'k base';
+    grp.appendChild(gname);
+    el.appendChild(grp);
+  });
+}
+
+['r-rate','r-mi','r-si','r-ad','r-co','r-lc'].forEach(id=>document.getElementById(id).addEventListener('input',calcROI));
+calcROI();
+
+// ── TOP CLIENTS (reactive) ────────────────────────────────────
+function renderTopClients(){
+  const rate = +document.getElementById('r-rate').value;
+  const mi   = +document.getElementById('r-mi').value/100;
+  const si   = +document.getElementById('r-si').value/100;
+  const ad   = +document.getElementById('r-ad').value/100;
+  const co   = +document.getElementById('r-co').value/100;
+  const mix  = {micro:mi,simple:si,adv:ad,comp:co};
+
+  // Sort clients by time saved descending
+  const sorted = [...topClients].map(c=>({...c, hrs: clientTimeSaved(c, mix)}))
+                                 .sort((a,b)=>b.hrs-a.hrs);
+  const maxHrs = sorted[0].hrs;
+  const top10TotalHrs = sorted.reduce((s,c)=>s+c.hrs,0);
+  const top10TotalVal = top10TotalHrs * rate;
+
+  // Top-of-tab callout
+  document.getElementById('clients-roi-callout').innerHTML=`
+    <div class="clients-callout">
+      <div class="cs"><div class="csv">${Math.round(top10TotalHrs).toLocaleString()} hrs</div><div class="csl">Est. hrs saved — top 10 clients</div></div>
+      <div class="cd"></div>
+      <div class="cs"><div class="csv">$${Math.round(top10TotalVal).toLocaleString()}</div><div class="csl">Est. value at $${rate}/hr</div></div>
+      <div class="cd"></div>
+      <div class="cs"><div class="csv">${Math.round(mi*100)}/${Math.round(si*100)}/${Math.round(ad*100)}/${Math.round(co*100)}%</div><div class="csl">Mix: Micro/Simple/Adv/Complex</div></div>
+      <div class="cd"></div>
+      <div class="cs"><div style="font-size:11px;color:rgba(255,255,255,.7);line-height:1.5">Adjust mix &amp; rate on<br><strong style="color:var(--salmon)">ROI &amp; Value tab</strong></div></div>
+    </div>`;
+
+  const medals=['🥇','🥈','🥉'];
+  const cl=document.getElementById('clientlist');
+  cl.innerHTML='';
+  sorted.forEach((c,i)=>{
+    const isTop=i<3;
+    const val = c.hrs * rate;
+    const cx = clientComplexityHrs(c, mix);
+    const totalCxHrs = Object.values(cx).reduce((s,v)=>s+v,0);
+    const actTotal = c.amort+c.fn+c.je+c.ld+c.mods;
+
+    const netStr=c.net12>0?`<span style="color:var(--green);font-weight:700">+${c.net12}</span>`:
+      c.net12<0?`<span style="color:var(--red);font-weight:700">${c.net12}</span>`:`<span style="color:var(--gray)">stable</span>`;
+    const badge=i<3?`<span class="bdg ${i===0?'bg2':i===1?'bs2':'bb2'}" style="margin-right:8px">${medals[i]}</span>`:
+      `<span style="font-size:11px;color:#999;margin-right:8px;font-weight:700">#${i+1}</span>`;
+
+    // Complexity stacked bar segments
+    const cxSegs = ['micro','simple','adv','comp'].map(tier=>{
+      const pct = totalCxHrs>0 ? Math.round(cx[tier]/totalCxHrs*100) : 0;
+      return pct>0?`<div class="cc-cx-seg" style="width:${pct}%;background:${CX_COLORS[tier]}" title="${CX_LABELS[tier]}: ${cx[tier].toFixed(1)}h"></div>`:'';
+    }).join('');
+
+    const cxLegend = ['micro','simple','adv','comp'].map(tier=>{
+      const hrs = cx[tier];
+      if(hrs<0.1) return '';
+      return `<div class="cc-cx-item"><div class="cc-cx-dot" style="background:${CX_COLORS[tier]}"></div>${CX_LABELS[tier]}: ${hrs.toFixed(1)}h</div>`;
+    }).join('');
+
+    // Activity breakdown bars (raw counts)
+    const maxA=Math.max(...topClients.map(x=>x.amort));
+    const maxF=Math.max(...topClients.map(x=>x.fn));
+    const maxJ=Math.max(...topClients.map(x=>x.je));
+    const maxM=Math.max(...topClients.map(x=>x.mods));
+
+    cl.innerHTML+=`<div class="cc${isTop?' top':''}">
+      <div class="cc-hdr">
+        <div>${badge}<span class="cc-name">${c.name}</span></div>
+        <div class="cc-meta">${c.leases} lease${c.leases!==1?'s':''} &nbsp;·&nbsp; ${actTotal} activities &nbsp;·&nbsp; 12mo: ${netStr}</div>
+      </div>
+      <div class="cc-time-row">
+        <div class="cc-time-hero">
+          <span class="cc-time-val">${c.hrs.toFixed(1)} hrs</span>
+          <span class="cc-time-lbl">estimated saved annually</span>
+        </div>
+        <div style="text-align:right">
+          <div class="cc-money-val">$${Math.round(val).toLocaleString()}</div>
+          <div class="cc-money-lbl">at $${rate}/hr</div>
+        </div>
+      </div>
+      <div class="cc-complexity">
+        <div class="cc-complexity-lbl">Time saved by complexity tier</div>
+        <div class="cc-complexity-bar">${cxSegs}</div>
+        <div class="cc-complexity-legend">${cxLegend}</div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="cc-bars">
+          <div class="cc-bi"><div>Amortizations: <strong>${c.amort}</strong></div><div class="cc-bt"><div class="cc-bf" style="width:${Math.round(c.amort/Math.max(maxA,1)*100)}%"></div></div></div>
+          <div class="cc-bi"><div>Footnotes: <strong>${c.fn}</strong></div><div class="cc-bt"><div class="cc-bf" style="width:${Math.round(c.fn/Math.max(maxF,1)*100)}%;background:var(--salmon)"></div></div></div>
+          <div class="cc-bi"><div>Journal Entries: <strong>${c.je}</strong></div><div class="cc-bt"><div class="cc-bf" style="width:${Math.round(c.je/Math.max(maxJ,1)*100)}%;background:var(--teal)"></div></div></div>
+          <div class="cc-bi"><div>Modifications: <strong>${c.mods}</strong></div><div class="cc-bt"><div class="cc-bf" style="width:${Math.round(c.mods/Math.max(maxM,1)*100)}%;background:var(--red)"></div></div></div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+renderTopClients();
+
+function showTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',i===j));
+  document.querySelectorAll('.pg').forEach((p,j)=>p.classList.toggle('on',i===j));
+}
+</script>
+</body>
+</html>
